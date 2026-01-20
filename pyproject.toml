@@ -1,0 +1,44 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pydantic-errors"
+version = "0.1.0"
+description = "Human-readable verbose error messages for Pydantic validation errors"
+license = {text = "MIT"}
+requires-python = ">=3.10"
+authors = [
+    { name = "Scott Phillips" }
+]
+keywords = ["pydantic", "validation", "errors", "verbose"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Typing :: Typed",
+]
+dependencies = [
+    "pydantic>=2.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+]
+
+[tool.setuptools]
+package-dir = {"pydantic_errors" = "."}
+packages = ["pydantic_errors", "pydantic_errors.error_handling", "pydantic_errors.models"]
+
+[tool.setuptools.package-data]
+pydantic_errors = ["py.typed"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
