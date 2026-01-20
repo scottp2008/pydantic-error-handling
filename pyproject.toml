@@ -3,7 +3,7 @@ requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "pydantic-errors"
+name = "pydantic-error-handling"
 version = "0.1.0"
 description = "Human-readable verbose error messages for Pydantic validation errors"
 license = {text = "MIT"}
