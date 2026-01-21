@@ -33,7 +33,7 @@ dev = [
 ]
 
 [tool.setuptools]
-package-dir = {"pydantic_error_handling" = "."}
+package-dir = {"" = "src"}
 packages = ["pydantic_error_handling", "pydantic_error_handling.error_handling", "pydantic_error_handling.models"]
 
 [tool.setuptools.package-data]

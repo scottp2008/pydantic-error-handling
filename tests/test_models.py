@@ -1,9 +1,10 @@
 """Unit tests for pydantic_errors models - NicePydanticError, field_path, etc."""
 
 import pytest
-from pydantic import BaseModel, field_validator
+from pydantic import BaseModel, ValidationError, field_validator
 
 from pydantic_error_handling import verbose_errors, VerboseValidationError, NicePydanticError
+from pydantic_error_handling import error_to_nice, error_to_string, nice_to_string
 from pydantic_error_handling.models.models import PydanticErrorsVerbose, PYDANTIC_FUNCTION_LOC_PATTERNS
 
 
@@ -145,8 +146,8 @@ class TestNicePydanticError:
         
         nice = NicePydanticError.from_verbose(verbose)
         
-        # field has the full path (for display/debugging)
-        assert nice.field == "serial.function-before[validate(), str]"
+        # field is now clean (uses formatted_loc which formats field_path)
+        assert nice.field == "serial"
         # field_path is clean (for UI matching)
         assert nice.field_path == ("serial",)
 
@@ -248,3 +249,53 @@ class TestPydanticFunctionLocPatterns:
         for pattern in expected:
             assert pattern in PYDANTIC_FUNCTION_LOC_PATTERNS, f"Missing pattern: {pattern}"
 
+
+class TestModelTranslation:
+    """Test that the model translation functions work correctly."""
+
+    def test_error_to_nice(self):
+        """Test that the error_to_nice function works correctly."""
+        from pydantic import BaseModel, ValidationError
+        
+        class TestModel(BaseModel):
+            name: str
+        
+        try:
+            TestModel(name=123) # type: ignore
+        except ValidationError as e:
+            nice_errors = error_to_nice(e)
+            
+            assert len(nice_errors) == 1
+            assert nice_errors[0].field == "name"
+            assert nice_errors[0].field_path == ("name",)
+            assert nice_errors[0].error_type == "string_type"
+            assert nice_errors[0].input_value == 123
+
+    def test_error_to_string(self):
+        """Test that the error_to_string function works correctly."""
+        from pydantic import BaseModel, ValidationError
+        
+        class TestModel(BaseModel):
+            name: str
+            age: int
+        
+        try:
+            TestModel(name=123, age="invalid") # type: ignore
+        except ValidationError as e:
+            string = error_to_string(e)
+            
+            # Should contain both error messages
+            assert "name" in string
+            assert "age" in string
+
+    def test_nice_to_string(self):
+        """Test that the nice_to_string function works correctly."""
+        nice = NicePydanticError(
+            field="name", 
+            field_path=("name",), 
+            message="Input should be a valid string", 
+            error_type="string_type",
+            input_value=123
+        )
+        string = nice_to_string(nice)
+        assert string == "Input should be a valid string"

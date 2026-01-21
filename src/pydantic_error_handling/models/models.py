@@ -159,10 +159,10 @@ class PydanticErrorsVerbose:
 
     @property
     def formatted_loc(self) -> str:
-        # ('items', 2, 'name') → "items[2].name"
-        if self.loc == ():
+        # Format the clean field_path (without validator cruft) → "items[2].name"
+        if self.field_path == ():
             return "root"
-        return ".".join(f"[{i}]" if isinstance(i, int) else i for i in self.loc)
+        return ".".join(f"[{i}]" if isinstance(i, int) else i for i in self.field_path)
 
     @property
     def field_path(self) -> tuple[int | str, ...]:
