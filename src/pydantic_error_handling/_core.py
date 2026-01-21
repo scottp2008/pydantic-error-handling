@@ -93,6 +93,7 @@ ERROR_HANDLERS: dict[ErrorType, ErrorHandler] = {
     ErrorType.BOOL_PARSING: shared.verbose_error_str_generic,
     ErrorType.BYTES_TYPE: shared.verbose_error_str_generic,
     ErrorType.CALLABLE_TYPE: shared.verbose_error_str_generic,
+    ErrorType.MODEL_TYPE: shared.verbose_error_str_generic,
     ErrorType.NONE_REQUIRED: shared.verbose_error_str_generic,
     
     # Bytes length errors

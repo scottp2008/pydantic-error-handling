@@ -74,6 +74,7 @@ class ErrorType(enum.Enum):
     BYTES_TOO_SHORT = "bytes_too_short"
     BYTES_TOO_LONG = "bytes_too_long"
     CALLABLE_TYPE = "callable_type"
+    MODEL_TYPE = "model_type"
     NONE_REQUIRED = "none_required"
 
     # Union errors
