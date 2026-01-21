@@ -17,9 +17,9 @@ This package returns nicer pydantic errors that are more human readable:
 
 ```
 
-### How to use this package
+## How to use this package
 
-#### Option 1: Use @verbose_errors wrapper
+### Option 1: Use @verbose_errors wrapper
 
 1. install the package to your project using git+https://github.com/scottp2008/pydantic-error-handling.git
 
@@ -49,7 +49,7 @@ class MyPydanticClass(pydantic.BaseModel):
 
 ```
 
-#### Option 2: Use helper functions to translate errors
+### Option 2: Use helper functions to translate errors
 
 1. install the package to your project using git+https://github.com/scottp2008/pydantic-error-handling.git
 
