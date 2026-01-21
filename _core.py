@@ -5,6 +5,7 @@ from typing import Callable
 import pydantic
 from pydantic_errors.models.models import (
     ErrorType,
+    NicePydanticError,
     PydanticErrorsVerbose,
     VerboseValidationError,
     VerboseValidationErrorData,
@@ -131,9 +132,12 @@ def clean(error_details: PydanticErrorsVerbose) -> PydanticErrorsVerbose:
 
 def _process_error(error: pydantic.ValidationError) -> VerboseValidationError:
     """Process a ValidationError into a VerboseValidationError."""
-    verbose_errors = []
+    verbose_errors: list[str] = []
+    structured_errors: list[NicePydanticError] = []
+    
     for e in error.errors():
         cleaned = clean(PydanticErrorsVerbose(e))
         verbose_errors.append(cleaned.verbose_error or cleaned.msg)
+        structured_errors.append(NicePydanticError.from_verbose(cleaned))
 
-    return VerboseValidationError(error, verbose_errors)
+    return VerboseValidationError(error, verbose_errors, structured_errors)

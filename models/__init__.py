@@ -2,6 +2,7 @@
 
 from pydantic_errors.models.models import (
     ErrorType,
+    NicePydanticError,
     PydanticErrorsVerbose,
     VerboseValidationError,
     VerboseValidationErrorData,
@@ -9,6 +10,7 @@ from pydantic_errors.models.models import (
 
 __all__ = [
     "ErrorType",
+    "NicePydanticError",
     "PydanticErrorsVerbose",
     "VerboseValidationError",
     "VerboseValidationErrorData",

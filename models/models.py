@@ -1,5 +1,6 @@
 import enum
 from typing import Any
+from pydantic import BaseModel
 from pydantic_core import ErrorDetails, ValidationError
 
 
@@ -87,6 +88,14 @@ class ErrorType(enum.Enum):
     FROZEN_INSTANCE = "frozen_instance"
 
 
+PYDANTIC_FUNCTION_LOC_PATTERNS = [
+    "function-before[",   # mode='before' (default)
+    "function-after[",    # mode='after'
+    "function-wrap[",     # wrap validators
+    "function-plain[",    # plain validators
+]
+
+
 class PydanticErrorsVerbose:
     type: str
     loc: tuple[int | str, ...]
@@ -118,6 +127,11 @@ class PydanticErrorsVerbose:
             return "root"
         return ".".join(f"[{i}]" if isinstance(i, int) else i for i in self.loc)
 
+    @property
+    def field_path(self) -> tuple[int | str, ...]:
+        # similar to loc but we remove gubbins like validators 
+        return tuple(i for i in self.loc if not any(pattern in str(i) for pattern in PYDANTIC_FUNCTION_LOC_PATTERNS))
+
 
 class VerboseValidationErrorData:
     count: int
@@ -128,15 +142,42 @@ class VerboseValidationErrorData:
         self.errors = [PydanticErrorsVerbose(error) for error in validation_error.errors()]
 
 
+class NicePydanticError(BaseModel):
+    """Structured error for UI field-level rendering."""
+    
+    field: str
+    message: str
+    error_type: str
+    input_value: Any
+    field_path: tuple[int | str, ...]
+
+    @classmethod
+    def from_verbose(cls, error: PydanticErrorsVerbose) -> "NicePydanticError":
+        return cls(
+            field=error.formatted_loc,
+            message=error.verbose_error or error.msg,
+            error_type=error.type,
+            input_value=error.input,
+            field_path=error.field_path,
+        )
+
+
 class VerboseValidationError(Exception):
     """Exception raised when Pydantic validation fails, with human-readable error messages."""
     
     original: ValidationError
     verbose_errors: list[str]
+    structured_errors: list[NicePydanticError]
 
-    def __init__(self, validation_error: ValidationError, verbose_errors: list[str]):
+    def __init__(
+        self,
+        validation_error: ValidationError,
+        verbose_errors: list[str],
+        structured_errors: list[NicePydanticError],
+    ):
         self.original = validation_error
         self.verbose_errors = verbose_errors
+        self.structured_errors = structured_errors
         super().__init__(f'Received {self.error_count()} errors: \n {"\n".join(verbose_errors)}')
 
     def errors(self) -> list[ErrorDetails]:

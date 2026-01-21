@@ -17,6 +17,7 @@ from pydantic_errors._core import parse_error_details, clean, _process_error
 from pydantic_errors.decorator import verbose_errors
 from pydantic_errors.models.models import (
     ErrorType,
+    NicePydanticError,
     PydanticErrorsVerbose,
     VerboseValidationError,
     VerboseValidationErrorData,
@@ -29,6 +30,7 @@ __all__ = [
     "clean",
     # Types/Classes
     "ErrorType",
+    "NicePydanticError",
     "PydanticErrorsVerbose",
     "VerboseValidationError",
     "VerboseValidationErrorData",
