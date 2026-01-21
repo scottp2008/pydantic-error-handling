@@ -9,11 +9,28 @@ Usage:
         name: str
         age: int
 
+    or translate a ValidationError to a string/NicePydanticError via helper functions:
+    from pydantic_error_handling import error_to_nice, error_to_string
+
+    try:
+        MyModel(name="John", age="twenty")
+    except ValidationError as e:
+        print(error_to_string(e))
+        print(error_to_nice(e))
+
     # Or manually process errors:
     from pydantic_error_handling import parse_error_details, clean
 """
 
-from pydantic_error_handling._core import parse_error_details, clean, _process_error
+from pydantic_error_handling._core import (
+    _process_error,
+    clean,
+    error_to_nice,
+    error_to_string,
+    nice_to_string,
+    parse_error_details,
+    verbose_to_nice,
+)
 from pydantic_error_handling.decorator import verbose_errors
 from pydantic_error_handling.models.models import (
     ErrorType,
@@ -24,10 +41,16 @@ from pydantic_error_handling.models.models import (
 )
 
 __all__ = [
-    # Main API
+    # Main API - Decorator
     "verbose_errors",
-    "parse_error_details",
+    # Main API - Functional
+    "error_to_nice",
+    "error_to_string",
+    "nice_to_string",
+    # Utility functions
     "clean",
+    "parse_error_details",
+    "verbose_to_nice",
     # Types/Classes
     "ErrorType",
     "NicePydanticError",

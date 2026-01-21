@@ -118,6 +118,25 @@ def parse_error_details(error: pydantic.ValidationError) -> list[PydanticErrorsV
     typed_error = VerboseValidationErrorData(error)
     return [clean(error) for error in typed_error.errors]
 
+def verbose_to_nice(verbose_error: PydanticErrorsVerbose) -> NicePydanticError:
+    """Convert a PydanticErrorsVerbose to a NicePydanticError."""
+    return NicePydanticError.from_verbose(verbose_error)
+
+def error_to_nice(error: pydantic.ValidationError) -> list[NicePydanticError]:
+    """Convert a ValidationError to a list of NicePydanticErrors."""
+    verbose = parse_error_details(error)
+    return [verbose_to_nice(error) for error in verbose]
+
+def nice_to_string(nice_error: NicePydanticError) -> str:
+    """Convert a NicePydanticError to a string."""
+    return f"{nice_error.message}"
+
+def error_to_string(verbose_error: pydantic.ValidationError) -> str:
+    """Convert a PydanticErrorsVerbose to a string."""
+    verbose = parse_error_details(verbose_error)
+    nice = [verbose_to_nice(error) for error in verbose]
+    return "\n".join(nice_to_string(n) for n in nice)
+
 
 def clean(error_details: PydanticErrorsVerbose) -> PydanticErrorsVerbose:
     """Route error to appropriate handler and set verbose_error."""
