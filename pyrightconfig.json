@@ -1,0 +1,26 @@
+{
+  "include": [
+    "."
+  ],
+  "exclude": [
+    "**/__pycache__",
+    "**/.pytest_cache",
+    ".venv",
+    "build",
+    "dist",
+    "*.egg-info"
+  ],
+  "reportMissingImports": "warning",
+  "reportMissingTypeStubs": false,
+  "pythonVersion": "3.10",
+  "pythonPlatform": "Darwin",
+  "extraPaths": [
+    "."
+  ],
+  "stubPath": "",
+  "venvPath": ".",
+  "venv": ".venv"
+}
+
+
+

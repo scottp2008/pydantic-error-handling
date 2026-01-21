@@ -1,6 +1,6 @@
 import pytest
 import pydantic
-from pydantic_errors import verbose_errors, VerboseValidationError
+from pydantic_error_handling import verbose_errors, VerboseValidationError
 
 
 @verbose_errors

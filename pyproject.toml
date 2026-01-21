@@ -33,11 +33,11 @@ dev = [
 ]
 
 [tool.setuptools]
-package-dir = {"pydantic_errors" = "."}
-packages = ["pydantic_errors", "pydantic_errors.error_handling", "pydantic_errors.models"]
+package-dir = {"pydantic_error_handling" = "."}
+packages = ["pydantic_error_handling", "pydantic_error_handling.error_handling", "pydantic_error_handling.models"]
 
 [tool.setuptools.package-data]
-pydantic_errors = ["py.typed"]
+pydantic_error_handling = ["py.typed"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

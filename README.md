@@ -24,7 +24,7 @@ This package returns nicer pydantic errors that are more human readable:
 2. Add the decorator `verbose_errors` to return nicely typed errors:
 
 ```
-from pydantic_errors import verbose_errors
+from pydantic_error_handling import verbose_errors
 
 
 @verbose_errors

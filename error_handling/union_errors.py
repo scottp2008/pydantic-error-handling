@@ -1,5 +1,5 @@
 # Handlers for union type matching errors
-from pydantic_errors.models.models import PydanticErrorsVerbose
+from pydantic_error_handling.models.models import PydanticErrorsVerbose
 
 
 def union_tag_invalid_error(error: PydanticErrorsVerbose) -> str:

@@ -5,7 +5,7 @@ Each test case passes an error dict through the clean() function
 and verifies the verbose_error output matches expectations.
 """
 import pytest
-from pydantic_errors import PydanticErrorsVerbose, clean
+from pydantic_error_handling import PydanticErrorsVerbose, clean
 
 
 # Test cases: (test_id, error_dict, expected_verbose_error)

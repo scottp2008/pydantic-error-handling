@@ -1,6 +1,6 @@
-# Data models for pydantic_errors
+# Data models for pydantic_error_handling
 
-from pydantic_errors.models.models import (
+from pydantic_error_handling.models.models import (
     ErrorType,
     NicePydanticError,
     PydanticErrorsVerbose,

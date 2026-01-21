@@ -1,6 +1,6 @@
 from typing import Any
 
-from pydantic_errors.models.models import PydanticErrorsVerbose
+from pydantic_error_handling.models.models import PydanticErrorsVerbose
 
 
 def format_received_value(value: Any) -> str:

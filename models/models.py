@@ -1,3 +1,4 @@
+from dataclasses import field
 import enum
 from typing import Any
 from pydantic import BaseModel
@@ -88,11 +89,45 @@ class ErrorType(enum.Enum):
     FROZEN_INSTANCE = "frozen_instance"
 
 
+# Patterns that appear in Pydantic error `loc` tuples that should be filtered out
+# when constructing clean field paths for UI/API consumption.
+#
+# When Pydantic validates complex types or uses custom validators, it wraps field
+# paths with internal validation metadata. For example:
+#   loc = ("serial", "function-before[validate(), str]")
+#
+# The field_path property filters these patterns to return just ("serial",).
+#
+# This list includes all known Pydantic v2.x location patterns that represent
+# validation/serialization internals rather than actual data field paths.
 PYDANTIC_FUNCTION_LOC_PATTERNS = [
-    "function-before[",   # mode='before' (default)
-    "function-after[",    # mode='after'
-    "function-wrap[",     # wrap validators
-    "function-plain[",    # plain validators
+    # Validator patterns (from @field_validator, @model_validator decorators)
+    "function-before[",   # mode='before' validators
+    "function-after[",    # mode='after' validators
+    "function-wrap[",     # mode='wrap' validators
+    "function-plain[",    # mode='plain' validators
+    
+    # Type-specific validation wrappers
+    "enum[",              # enum field validation
+    "dict[",              # dict field validation
+    "list[",              # list/sequence field validation
+    "set[",               # set field validation
+    "frozenset[",         # frozenset field validation
+    "tuple[",             # tuple field validation
+    
+    # Union/discriminated union patterns
+    "union[",             # union type validation
+    "tagged-union[",      # discriminated union validation
+    
+    # Special validators
+    "dataclass[",         # dataclass validation
+    "model[",             # BaseModel validation (nested models)
+    "typed-dict[",        # TypedDict validation
+    "arguments[",         # @validate_call arguments validation
+    
+    # Serialization patterns (can appear in error paths during validation)
+    "function-ser[",      # custom serializers
+    "function-plain-ser[", # plain serializers
 ]
 
 
@@ -104,14 +139,16 @@ class PydanticErrorsVerbose:
     ctx: dict[str, Any] | None = None
     url: str | None = None
     verbose_error: str | None = None
+    omit_patterns: list[str]
 
-    def __init__(self, error_details: ErrorDetails):
+    def __init__(self, error_details: ErrorDetails, omit_patterns: list[str] | None = None):
         self.type = error_details["type"]
         self.loc = error_details["loc"]
         self.msg = error_details["msg"]
         self.input = error_details["input"]
         self.ctx = error_details.get("ctx", None)
         self.url = error_details.get("url", None)
+        self.omit_patterns = omit_patterns or []
 
     @property
     def formatted_type(self) -> ErrorType:
@@ -130,7 +167,8 @@ class PydanticErrorsVerbose:
     @property
     def field_path(self) -> tuple[int | str, ...]:
         # similar to loc but we remove gubbins like validators 
-        return tuple(i for i in self.loc if not any(pattern in str(i) for pattern in PYDANTIC_FUNCTION_LOC_PATTERNS))
+        omit_patterns = self.omit_patterns + PYDANTIC_FUNCTION_LOC_PATTERNS
+        return tuple(i for i in self.loc if not any(pattern in str(i) for pattern in omit_patterns))
 
 
 class VerboseValidationErrorData:

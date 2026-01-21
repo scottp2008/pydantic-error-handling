@@ -3,14 +3,14 @@
 from typing import Callable
 
 import pydantic
-from pydantic_errors.models.models import (
+from pydantic_error_handling.models.models import (
     ErrorType,
     NicePydanticError,
     PydanticErrorsVerbose,
     VerboseValidationError,
     VerboseValidationErrorData,
 )
-from pydantic_errors.error_handling import (
+from pydantic_error_handling.error_handling import (
     collection_errors,
     datetime_errors,
     email_url_errors,
@@ -130,13 +130,14 @@ def clean(error_details: PydanticErrorsVerbose) -> PydanticErrorsVerbose:
     return error_details
 
 
-def _process_error(error: pydantic.ValidationError) -> VerboseValidationError:
+def _process_error(error: pydantic.ValidationError, omit_patterns: list[str] | None = None) -> VerboseValidationError:
     """Process a ValidationError into a VerboseValidationError."""
+    omit_patterns = omit_patterns or []
     verbose_errors: list[str] = []
     structured_errors: list[NicePydanticError] = []
     
     for e in error.errors():
-        cleaned = clean(PydanticErrorsVerbose(e))
+        cleaned = clean(PydanticErrorsVerbose(e, omit_patterns=omit_patterns))
         verbose_errors.append(cleaned.verbose_error or cleaned.msg)
         structured_errors.append(NicePydanticError.from_verbose(cleaned))
 

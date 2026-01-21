@@ -1,6 +1,6 @@
 # Error handlers for transforming pydantic errors into human-readable messages
 
-from pydantic_errors.error_handling import (
+from pydantic_error_handling.error_handling import (
     collection_errors,
     datetime_errors,
     email_url_errors,

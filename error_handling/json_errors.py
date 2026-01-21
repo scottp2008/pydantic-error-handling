@@ -1,6 +1,6 @@
 # Handlers for JSON parsing errors
 import re
-from pydantic_errors.models.models import PydanticErrorsVerbose
+from pydantic_error_handling.models.models import PydanticErrorsVerbose
 
 
 def json_invalid_error(error: PydanticErrorsVerbose) -> str:

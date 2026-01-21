@@ -1,6 +1,6 @@
 # Handlers for date, time, datetime, and timedelta errors
-from pydantic_errors.models.models import PydanticErrorsVerbose
-from pydantic_errors.error_handling import shared
+from pydantic_error_handling.models.models import PydanticErrorsVerbose
+from pydantic_error_handling.error_handling import shared
 
 
 def _datetime_parsing_error(error: PydanticErrorsVerbose) -> str:

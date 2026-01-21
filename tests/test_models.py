@@ -3,8 +3,8 @@
 import pytest
 from pydantic import BaseModel, field_validator
 
-from pydantic_errors import verbose_errors, VerboseValidationError, NicePydanticError
-from pydantic_errors.models.models import PydanticErrorsVerbose, PYDANTIC_FUNCTION_LOC_PATTERNS
+from pydantic_error_handling import verbose_errors, VerboseValidationError, NicePydanticError
+from pydantic_error_handling.models.models import PydanticErrorsVerbose, PYDANTIC_FUNCTION_LOC_PATTERNS
 
 
 class TestFieldPathFiltering:

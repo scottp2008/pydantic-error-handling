@@ -1,6 +1,6 @@
 # Handlers for type mismatch errors (wrong type provided)
-from pydantic_errors.models.models import PydanticErrorsVerbose
-from pydantic_errors.error_handling import shared
+from pydantic_error_handling.models.models import PydanticErrorsVerbose
+from pydantic_error_handling.error_handling import shared
 
 
 def _bytes_wrong_length_error(error: PydanticErrorsVerbose, actual_length: int, required_length: int, direction: str) -> str:

@@ -1,5 +1,5 @@
 # Handlers for missing required field errors
-from pydantic_errors.models.models import PydanticErrorsVerbose
+from pydantic_error_handling.models.models import PydanticErrorsVerbose
 
 
 def missing_error(error: PydanticErrorsVerbose) -> str:

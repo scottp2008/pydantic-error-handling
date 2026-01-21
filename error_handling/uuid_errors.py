@@ -1,6 +1,6 @@
 # Handlers for UUID parsing and validation errors
-from pydantic_errors.models.models import PydanticErrorsVerbose
-from pydantic_errors.error_handling import shared
+from pydantic_error_handling.models.models import PydanticErrorsVerbose
+from pydantic_error_handling.error_handling import shared
 
 
 def uuid_parsing_error(error: PydanticErrorsVerbose) -> str:

@@ -1,6 +1,6 @@
 # Handlers for collection constraint errors (List, Set, Tuple, Dict)
-from pydantic_errors.models.models import PydanticErrorsVerbose
-from pydantic_errors.error_handling import shared
+from pydantic_error_handling.models.models import PydanticErrorsVerbose
+from pydantic_error_handling.error_handling import shared
 
 
 def _type_error(error: PydanticErrorsVerbose, expected_type: type) -> str:
