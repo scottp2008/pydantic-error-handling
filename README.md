@@ -21,7 +21,7 @@ This package returns nicer pydantic errors that are more human readable:
 
 ### Option 1: Use @verbose_errors wrapper
 
-1. install the package to your project using git+https://github.com/scottp2008/pydantic-error-handling.git
+1. install the package to your project using `pip install pydantic-error-handling`
 
 2. Add the decorator `verbose_errors` to return nicely typed errors:
 
@@ -51,7 +51,7 @@ class MyPydanticClass(pydantic.BaseModel):
 
 ### Option 2: Use helper functions to translate errors
 
-1. install the package to your project using git+https://github.com/scottp2008/pydantic-error-handling.git
+1. install the package to your project using `pip install pydantic-error-handling`
 
 2. generate the relevant pydantic error
 
