@@ -1,21 +1,46 @@
 ## Pydantic Nicer Error Classes
 
-This package returns nicer pydantic errors that are more human readable:
+This package returns nicer pydantic errors on over 40+ ValidationError types that are more human readable.
 
- ```
-        {
-            "type": "union_tag_invalid",
-            "loc": ("item", 2, "thing"),
-            "msg": "Input tag 'c' found using 'type' does not match any of the expected tags: 'a', 'b'",
-            "input": {"type": "c", "c_field": "test"},
-            "ctx": {"discriminator": "'type'", "tag": "c", "expected_tags": "'a', 'b'"},
-        }
-
-        becomes:
-
-        "'item[2].thing': Unrecognized type. The 'type' field was 'c', but must be one of: 'a', 'b'.",
+For example, with a json error you might get the following with pydantic:
 
 ```
+ValidationError: 1 validation error for User
+  Invalid JSON: expected value at line 1 column 25 [type=json_invalid, input_value='{"name": "John", "age": ....com", "addresses": []}', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.12/v/json_invalid
+```
+
+This can be hard to read, and unclear to non-technical users. Producing the same error with the package the pydantic-error-handling package becomes much clearer, with clear highlighting of the specific issue.
+
+```
+Invalid JSON at line 1, column 25:
+  {"name": "John", "age": invalid, "email": "test@example.com", "addresses": []}
+                          ^ expected value
+```
+
+## Quick Start
+
+```python
+from pydantic import BaseModel
+from pydantic_error_handling import verbose_errors
+
+@verbose_errors
+class User(BaseModel):
+    name: str
+    age: int
+    email: str
+
+# JSON parsing errors now show visual arrows
+bad_json = '{"name": "John", "age": invalid, "email": "test@example.com"}'
+try:
+    User.model_validate_json(bad_json)
+except Exception as e:
+    print(e)
+    # Invalid JSON at line 1, column 25:
+    #   {"name": "John", "age": invalid, "email": "test@example.com"}
+    #                           ^ expected value
+```
+
 
 ## How to use this package
 
