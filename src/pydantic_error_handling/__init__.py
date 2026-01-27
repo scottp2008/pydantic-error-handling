@@ -41,13 +41,13 @@ from pydantic_error_handling.models.models import (
 )
 
 __all__ = [
-    # Main API - Decorator
+    # Main API - Decorator, stable
     "verbose_errors",
-    # Main API - Functional
+    # Main API - Function Helpers, stable
     "error_to_nice",
     "error_to_string",
     "nice_to_string",
-    # Utility functions
+    # Utility functions 
     "clean",
     "parse_error_details",
     "verbose_to_nice",
