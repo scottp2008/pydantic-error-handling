@@ -1,5 +1,6 @@
 """Core logic for transforming Pydantic validation errors into verbose messages."""
 
+from functools import partial
 from typing import Callable
 
 import pydantic
@@ -10,107 +11,95 @@ from pydantic_error_handling.models.models import (
     VerboseValidationError,
     VerboseValidationErrorData,
 )
-from pydantic_error_handling.error_handling import (
-    collection_errors,
-    datetime_errors,
-    email_url_errors,
-    extra_field_errors,
-    json_errors,
-    missing_errors,
-    shared,
-    type_errors,
-    union_errors,
-    uuid_errors,
-    validation_errors,
-)
+from pydantic_error_handling import error_handling
 
 # Type alias for error handler functions
 ErrorHandler = Callable[[PydanticErrorsVerbose], str]
 
 # Registry mapping ErrorType to handler function
 ERROR_HANDLERS: dict[ErrorType, ErrorHandler] = {
+    # Bytes errors
+    ErrorType.BYTES_TOO_SHORT: partial(error_handling.too_short_error, unit="bytes"),
+    ErrorType.BYTES_TOO_LONG: partial(error_handling.too_long_error, unit="bytes"),
+
     # Collection errors
-    ErrorType.LIST_TYPE: collection_errors.list_type_error,
-    ErrorType.SET_TYPE: collection_errors.set_type_error,
-    ErrorType.TUPLE_TYPE: collection_errors.tuple_type_error,
-    ErrorType.DICT_TYPE: collection_errors.dict_type_error,
-    ErrorType.FROZEN_SET_TYPE: collection_errors.frozen_set_type_error,
-    ErrorType.TOO_SHORT: collection_errors.too_short_error,
-    ErrorType.TOO_LONG: collection_errors.too_long_error,
+    ErrorType.LIST_TYPE: partial(error_handling.verbose_type_error, expected_type=list),
+    ErrorType.SET_TYPE: partial(error_handling.verbose_type_error, expected_type=set),
+    ErrorType.TUPLE_TYPE: partial(error_handling.verbose_type_error, expected_type=tuple),
+    ErrorType.DICT_TYPE: partial(error_handling.verbose_type_error, expected_type=dict),
+    ErrorType.FROZEN_SET_TYPE: partial(error_handling.verbose_type_error, expected_type=frozenset),
+    ErrorType.TOO_SHORT: partial(error_handling.too_short_error, unit="items"),
+    ErrorType.TOO_LONG: partial(error_handling.too_long_error, unit="items"),
     
     # Datetime parsing errors
-    ErrorType.DATE_FROM_DATETIME_PARSING: datetime_errors.date_from_datetime_parsing_error,
-    ErrorType.DATETIME_FROM_DATE_PARSING: datetime_errors.datetime_from_date_parsing_error,
-    ErrorType.TIME_PARSING: datetime_errors.time_parsing_error,
-    ErrorType.TIME_DELTA_PARSING: datetime_errors.time_delta_parsing_error,
+    ErrorType.DATE_FROM_DATETIME_PARSING: error_handling.datetime_parsing_error,
+    ErrorType.DATETIME_FROM_DATE_PARSING: error_handling.datetime_parsing_error,
+    ErrorType.TIME_PARSING: error_handling.datetime_parsing_error,
+    ErrorType.TIME_DELTA_PARSING: error_handling.datetime_parsing_error,
     
-    # Datetime constraint errors (generic)
-    ErrorType.DATE_PAST: shared.verbose_error_str_generic,
-    ErrorType.DATE_FUTURE: shared.verbose_error_str_generic,
-    ErrorType.DATETIME_PAST: shared.verbose_error_str_generic,
-    ErrorType.DATETIME_FUTURE: shared.verbose_error_str_generic,
-    ErrorType.TIMEZONE_AWARE: shared.verbose_error_str_generic,
-    ErrorType.TIMEZONE_NAIVE: shared.verbose_error_str_generic,
+    # Datetime constraint errors
+    ErrorType.DATE_PAST: error_handling.verbose_error_str_generic,
+    ErrorType.DATE_FUTURE: error_handling.verbose_error_str_generic,
+    ErrorType.DATETIME_PAST: error_handling.verbose_error_str_generic,
+    ErrorType.DATETIME_FUTURE: error_handling.verbose_error_str_generic,
+    ErrorType.TIMEZONE_AWARE: error_handling.verbose_error_str_generic,
+    ErrorType.TIMEZONE_NAIVE: error_handling.verbose_error_str_generic,
     
-    # Decimal errors (generic)
-    ErrorType.DECIMAL_PARSING: shared.verbose_error_str_generic,
-    ErrorType.DECIMAL_MAX_DIGITS: shared.verbose_error_str_generic,
-    ErrorType.DECIMAL_MAX_PLACES: shared.verbose_error_str_generic,
+    # Decimal errors
+    ErrorType.DECIMAL_PARSING: error_handling.verbose_error_str_generic,
+    ErrorType.DECIMAL_MAX_DIGITS: error_handling.verbose_error_str_generic,
+    ErrorType.DECIMAL_MAX_PLACES: error_handling.verbose_error_str_generic,
     
-    # URL errors
-    ErrorType.URL_PARSING: email_url_errors.url_parsing_error,
-    ErrorType.URL_SCHEME: shared.verbose_error_str_generic,
-    
-    # Enum errors (generic)
-    ErrorType.ENUM: shared.verbose_error_str_generic,
-    ErrorType.LITERAL_ERROR: shared.verbose_error_str_generic,
+    # Enum errors
+    ErrorType.ENUM: error_handling.verbose_error_str_generic,
+    ErrorType.LITERAL_ERROR: error_handling.verbose_error_str_generic,
     
     # Extra field errors
-    ErrorType.EXTRA_FORBIDDEN: extra_field_errors.extra_forbidden_error,
+    ErrorType.EXTRA_FORBIDDEN: error_handling.extra_forbidden_error,
     
     # JSON errors
-    ErrorType.JSON_INVALID: json_errors.json_invalid_error,
+    ErrorType.JSON_INVALID: error_handling.json_invalid_error,
     
     # Missing errors
-    ErrorType.MISSING: missing_errors.missing_error,
+    ErrorType.MISSING: error_handling.missing_error,
     
-    # Numeric errors (generic)
-    ErrorType.GREATER_THAN: shared.verbose_error_str_generic,
-    ErrorType.GREATER_THAN_EQUAL: shared.verbose_error_str_generic,
-    ErrorType.LESS_THAN: shared.verbose_error_str_generic,
-    ErrorType.LESS_THAN_EQUAL: shared.verbose_error_str_generic,
-    ErrorType.MULTIPLE_OF: shared.verbose_error_str_generic,
+    # Numeric errors
+    ErrorType.GREATER_THAN: error_handling.verbose_error_str_generic,
+    ErrorType.GREATER_THAN_EQUAL: error_handling.verbose_error_str_generic,
+    ErrorType.LESS_THAN: error_handling.verbose_error_str_generic,
+    ErrorType.LESS_THAN_EQUAL: error_handling.verbose_error_str_generic,
+    ErrorType.MULTIPLE_OF: error_handling.verbose_error_str_generic,
     
     # String errors
-    ErrorType.STRING_TYPE: shared.verbose_error_str_generic,
-    ErrorType.STRING_TOO_SHORT: type_errors.string_too_short_error,
-    ErrorType.STRING_TOO_LONG: type_errors.string_too_long_error,
-    ErrorType.STRING_PATTERN_MISMATCH: shared.verbose_error_str_generic,
+    ErrorType.STRING_TYPE: error_handling.verbose_error_str_generic,
+    ErrorType.STRING_TOO_SHORT: partial(error_handling.too_short_error, unit="characters"),
+    ErrorType.STRING_TOO_LONG: partial(error_handling.too_long_error, unit="characters"),
+    ErrorType.STRING_PATTERN_MISMATCH: error_handling.verbose_error_str_generic,
     
-    # Type/parsing errors (generic)
-    ErrorType.INT_PARSING: shared.verbose_error_str_generic,
-    ErrorType.FLOAT_PARSING: shared.verbose_error_str_generic,
-    ErrorType.BOOL_PARSING: shared.verbose_error_str_generic,
-    ErrorType.BYTES_TYPE: shared.verbose_error_str_generic,
-    ErrorType.CALLABLE_TYPE: shared.verbose_error_str_generic,
-    ErrorType.MODEL_TYPE: shared.verbose_error_str_generic,
-    ErrorType.NONE_REQUIRED: shared.verbose_error_str_generic,
-    
-    # Bytes length errors
-    ErrorType.BYTES_TOO_SHORT: type_errors.bytes_too_short_error,
-    ErrorType.BYTES_TOO_LONG: type_errors.bytes_too_long_error,
-    
+    # Type/parsing errors
+    ErrorType.INT_PARSING: error_handling.verbose_error_str_generic,
+    ErrorType.FLOAT_PARSING: error_handling.verbose_error_str_generic,
+    ErrorType.BOOL_PARSING: error_handling.verbose_error_str_generic,
+    ErrorType.BYTES_TYPE: error_handling.verbose_error_str_generic,
+    ErrorType.CALLABLE_TYPE: error_handling.verbose_error_str_generic,
+    ErrorType.MODEL_TYPE: error_handling.verbose_error_str_generic,
+    ErrorType.NONE_REQUIRED: error_handling.verbose_error_str_generic,
+        
     # Union errors
-    ErrorType.UNION_TAG_INVALID: union_errors.union_tag_invalid_error,
-    ErrorType.UNION_TAG_NOT_FOUND: union_errors.union_tag_not_found_error,
+    ErrorType.UNION_TAG_INVALID: error_handling.union_tag_invalid_error,
+    ErrorType.UNION_TAG_NOT_FOUND: error_handling.union_tag_not_found_error,
     
+    # URL errors
+    ErrorType.URL_PARSING: error_handling.url_parsing_error,
+    ErrorType.URL_SCHEME: error_handling.verbose_error_str_generic,
+
     # UUID errors
-    ErrorType.UUID_PARSING: uuid_errors.uuid_parsing_error,
+    ErrorType.UUID_PARSING: error_handling.uuid_parsing_error,
     
     # Validation errors
-    ErrorType.VALUE_ERROR: validation_errors.value_error,
-    ErrorType.ASSERTION_ERROR: validation_errors.assertion_error,
-    ErrorType.FROZEN_INSTANCE: validation_errors.frozen_instance_error,
+    ErrorType.VALUE_ERROR: error_handling.validation_error,
+    ErrorType.ASSERTION_ERROR: error_handling.validation_error,
+    ErrorType.FROZEN_INSTANCE: error_handling.frozen_instance_error,
 }
 
 

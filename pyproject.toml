@@ -34,7 +34,7 @@ dev = [
 
 [tool.setuptools]
 package-dir = {"" = "src"}
-packages = ["pydantic_error_handling", "pydantic_error_handling.error_handling", "pydantic_error_handling.models"]
+packages = ["pydantic_error_handling", "pydantic_error_handling.models"]
 
 [tool.setuptools.package-data]
 pydantic_error_handling = ["py.typed"]
