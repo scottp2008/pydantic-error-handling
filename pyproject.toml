@@ -6,6 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "pydantic-error-handling"
 version = "0.1.0"
 description = "Human-readable verbose error messages for Pydantic validation errors"
+readme = "README.md"
 license = {text = "MIT"}
 requires-python = ">=3.10"
 authors = [
@@ -15,6 +16,7 @@ keywords = ["pydantic", "validation", "errors", "verbose"]
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
@@ -24,8 +26,13 @@ classifiers = [
     "Typing :: Typed",
 ]
 dependencies = [
-    "pydantic>=2.0.0",
+    "pydantic>=2.4,<3.0",
 ]
+
+[project.urls]
+Homepage = "https://github.com/scottp2008/pydantic-error-handling"
+Repository = "https://github.com/scottp2008/pydantic-error-handling"
+Issues = "https://github.com/scottp2008/pydantic-error-handling/issues"
 
 [project.optional-dependencies]
 dev = [

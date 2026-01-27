@@ -142,7 +142,6 @@ class PydanticErrorsVerbose:
     ctx: dict[str, Any] | None
     url: str | None
     verbose_error: str | None
-    omit_patterns: list[str]
     field_path: tuple[int | str, ...]
     formatted_loc: str
     formatted_type: ErrorType
@@ -155,10 +154,8 @@ class PydanticErrorsVerbose:
         self.ctx = error_details.get("ctx", None)
         self.url = error_details.get("url", None)
         self.verbose_error = None  
-        self.omit_patterns = omit_patterns or []
         
-        # Define field path
-        omit_patterns_combined = self.omit_patterns + PYDANTIC_FUNCTION_LOC_PATTERNS
+        omit_patterns_combined = (omit_patterns or []) + PYDANTIC_FUNCTION_LOC_PATTERNS
         self.field_path = tuple(i for i in self.loc if not any(pattern in str(i) for pattern in omit_patterns_combined))
         
         # Define formatted loc
