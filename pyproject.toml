@@ -4,10 +4,11 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "pydantic-error-handling"
-version = "0.1.0"
+version = "0.1.1"
 description = "Human-readable verbose error messages for Pydantic validation errors"
 readme = "README.md"
-license = {text = "MIT"}
+license = "MIT"
+
 requires-python = ">=3.10"
 authors = [
     { name = "Scott Phillips" }
