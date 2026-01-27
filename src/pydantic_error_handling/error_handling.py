@@ -8,10 +8,13 @@ from pydantic_error_handling.models.models import PydanticErrorsVerbose
 
 
 def format_received_value(value: Any) -> str:
+    MAX_RESULT_LENGTH = 100
     if isinstance(value, str):
         value_str = f"{repr(value)}"
     else:
         value_str = f"{value}"
+    if len(value_str) > MAX_RESULT_LENGTH:
+        value_str = value_str[:MAX_RESULT_LENGTH] + "..."
     return f"Received type: {type(value).__name__}, value: {value_str}"
 
 
