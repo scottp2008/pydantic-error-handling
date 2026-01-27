@@ -10,7 +10,7 @@ from pydantic_error_handling import PydanticErrorsVerbose, clean
 
 # Test cases: (test_id, error_dict, expected_verbose_error)
 TEST_CASES = [
-    # ==================== Collection Errors ====================
+    # Collection Errors
     (
         "list_type",
         {
@@ -83,7 +83,7 @@ TEST_CASES = [
         },
         "'value': List should have at most 3 items, not 5. Received type: list, value: [1, 2, 3, 4, 5]",
     ),
-    # ==================== Datetime Errors (Parsing) ====================
+    # Datetime parsing errors
     (
         "date_from_datetime_parsing",
         {
@@ -128,7 +128,7 @@ TEST_CASES = [
         },
         "'value': Invalid time delta parsing - invalid digit in duration. Received type: str, value: 'not-a-timedelta'",
     ),
-    # ==================== Datetime Errors (Generic) ====================
+    # Datetime constraint errors
     (
         "date_past",
         {
@@ -189,7 +189,7 @@ TEST_CASES = [
         },
         "'value': Input should not have timezone info. Received type: str, value: '2023-01-15T10:30:00Z'",
     ),
-    # ==================== Decimal Errors (Generic) ====================
+    # Decimal errors
     (
         "decimal_parsing",
         {
@@ -222,7 +222,7 @@ TEST_CASES = [
         },
         "'value': Decimal input should have no more than 2 decimal places. Received type: str, value: '123.456'",
     ),
-    # ==================== URL Errors ====================
+    # URL errors
     (
         "url_parsing",
         {
@@ -245,7 +245,7 @@ TEST_CASES = [
         },
         "'value': URL scheme should be 'http' or 'https'. Received type: str, value: 'ftp://example.com'",
     ),
-    # ==================== Enum Errors (Generic) ====================
+    # Enum errors
     (
         "enum",
         {
@@ -268,7 +268,7 @@ TEST_CASES = [
         },
         "'value': Input should be 'active' or 'inactive'. Received type: str, value: 'pending'",
     ),
-    # ==================== Extra Field Errors ====================
+    # Extra field errors
     (
         "extra_forbidden",
         {
@@ -279,7 +279,7 @@ TEST_CASES = [
         },
         "Unexpected field: 'extra_field'. Extra fields are not permitted. Received type: str, value: 'value'",
     ),
-    # ==================== JSON Errors ====================
+    # JSON errors
     (
         "json_invalid",
         {
@@ -291,7 +291,7 @@ TEST_CASES = [
         },
         "Invalid JSON at line 1, column 2:\n  {invalid json}\n   ^ key must be a string",
     ),
-    # ==================== Missing Errors ====================
+    # Missing field errors
     (
         "missing",
         {
@@ -302,7 +302,7 @@ TEST_CASES = [
         },
         "Missing required field: required_field.",
     ),
-    # ==================== Numeric Errors (Generic) ====================
+    # Numeric constraint errors
     (
         "greater_than",
         {
@@ -358,7 +358,7 @@ TEST_CASES = [
         },
         "'value': Input should be a multiple of 5. Received type: int, value: 7",
     ),
-    # ==================== String Errors (Generic) ====================
+    # String errors
     (
         "string_type",
         {
@@ -402,7 +402,7 @@ TEST_CASES = [
         },
         "'value': String should match pattern '^[a-z]+$'. Received type: str, value: 'ABC123'",
     ),
-    # ==================== Type/Parsing Errors (Generic) ====================
+    # Type parsing errors
     (
         "int_parsing",
         {
@@ -463,7 +463,7 @@ TEST_CASES = [
         },
         "'value': Input should be None. Received type: str, value: 'not_none'",
     ),
-    # ==================== Type Errors (Custom Bytes) ====================
+    # Bytes length errors
     (
         "bytes_too_short",
         {
@@ -473,7 +473,7 @@ TEST_CASES = [
             "input": b"short",
             "ctx": {"min_length": 10},
         },
-        "'value': Should have no less than 10 bytes, not 5. Received type: bytes, value: b'short'",
+        "'value': Should have at least 10 bytes, not 5. Received type: bytes, value: b'short'",
     ),
     (
         "bytes_too_long",
@@ -484,9 +484,9 @@ TEST_CASES = [
             "input": b"this is too long",
             "ctx": {"max_length": 5},
         },
-        "'value': Should have no more than 5 bytes, not 16. Received type: bytes, value: b'this is too long'",
+        "'value': Should have at most 5 bytes, not 16. Received type: bytes, value: b'this is too long'",
     ),
-    # ==================== Union Errors ====================
+    # Union errors
     (
         "union_tag_invalid",
         {
@@ -509,7 +509,7 @@ TEST_CASES = [
         },
         "'item': Missing 'type' field to identify what type of object it is.",
     ),
-    # ==================== UUID Errors ====================
+    # UUID errors
     (
         "uuid_parsing",
         {
@@ -521,7 +521,7 @@ TEST_CASES = [
         },
         "'value': Not a valid UUID. Received type: str, value: 'not-a-uuid'",
     ),
-    # ==================== Validation Errors ====================
+    # Validation errors
     (
         "value_error",
         {

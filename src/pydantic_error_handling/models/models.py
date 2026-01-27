@@ -101,7 +101,9 @@ class ErrorType(enum.Enum):
 #
 # This list includes all known Pydantic v2.x location patterns that represent
 # validation/serialization internals rather than actual data field paths.
-PYDANTIC_FUNCTION_LOC_PATTERNS = [
+#
+# When using the wrapper, you are able to add additional patterns via the omit_patterns parameter.
+PYDANTIC_FUNCTION_LOC_PATTERNS = [ 
     # Validator patterns (from @field_validator, @model_validator decorators)
     "function-before[",   # mode='before' validators
     "function-after[",    # mode='after' validators
@@ -137,10 +139,13 @@ class PydanticErrorsVerbose:
     loc: tuple[int | str, ...]
     msg: str
     input: Any
-    ctx: dict[str, Any] | None = None
-    url: str | None = None
-    verbose_error: str | None = None
+    ctx: dict[str, Any] | None
+    url: str | None
+    verbose_error: str | None
     omit_patterns: list[str]
+    field_path: tuple[int | str, ...]
+    formatted_loc: str
+    formatted_type: ErrorType
 
     def __init__(self, error_details: ErrorDetails, omit_patterns: list[str] | None = None):
         self.type = error_details["type"]
@@ -149,27 +154,22 @@ class PydanticErrorsVerbose:
         self.input = error_details["input"]
         self.ctx = error_details.get("ctx", None)
         self.url = error_details.get("url", None)
+        self.verbose_error = None  
         self.omit_patterns = omit_patterns or []
-
-    @property
-    def formatted_type(self) -> ErrorType:
+        
+        # Define field path
+        omit_patterns_combined = self.omit_patterns + PYDANTIC_FUNCTION_LOC_PATTERNS
+        self.field_path = tuple(i for i in self.loc if not any(pattern in str(i) for pattern in omit_patterns_combined))
+        
+        # Define formatted loc
+        self.formatted_loc = "root" if self.field_path == () else ".".join(
+            f"[{i}]" if isinstance(i, int) else i for i in self.field_path
+        )
+        
         try:
-            return ErrorType(self.type)
+            self.formatted_type = ErrorType(self.type)
         except ValueError:
-            return ErrorType.UNKNOWN
-
-    @property
-    def formatted_loc(self) -> str:
-        # Format the clean field_path (without validator cruft) → "items[2].name"
-        if self.field_path == ():
-            return "root"
-        return ".".join(f"[{i}]" if isinstance(i, int) else i for i in self.field_path)
-
-    @property
-    def field_path(self) -> tuple[int | str, ...]:
-        # similar to loc but we remove gubbins like validators 
-        omit_patterns = self.omit_patterns + PYDANTIC_FUNCTION_LOC_PATTERNS
-        return tuple(i for i in self.loc if not any(pattern in str(i) for pattern in omit_patterns))
+            self.formatted_type = ErrorType.UNKNOWN
 
 
 class VerboseValidationErrorData:
