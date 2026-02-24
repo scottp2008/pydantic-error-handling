@@ -1,9 +1,10 @@
 """Core logic for transforming Pydantic validation errors into verbose messages."""
 
 from functools import partial
-from typing import Callable
+from typing import Callable, cast
 
 import pydantic
+from pydantic_core import ErrorDetails
 from pydantic_error_handling.models.models import (
     ErrorType,
     NicePydanticError,
@@ -126,6 +127,88 @@ def error_to_string(verbose_error: pydantic.ValidationError) -> str:
     verbose = parse_error_details(verbose_error)
     nice = [verbose_to_nice(error) for error in verbose]
     return "\n".join(nice_to_string(n) for n in nice)
+
+
+def _find_nested_validation_error(exc: BaseException) -> pydantic.ValidationError | None:
+    """Return the first ValidationError found in exc, its args, or its __cause__.
+
+    Handles the three common patterns from field validators:
+      - raise validation_error                   → exc itself
+      - raise ValueError(validation_error)       → exc.args[0]
+      - raise ValueError("msg") from val_error   → exc.__cause__
+    """
+    if isinstance(exc, pydantic.ValidationError):
+        return exc
+    if exc.args and isinstance(exc.args[0], pydantic.ValidationError):
+        return exc.args[0]
+    if isinstance(exc.__cause__, pydantic.ValidationError):
+        return exc.__cause__
+    return None
+
+
+def unwrap_nested_validation_errors(
+    error: pydantic.ValidationError,
+    parent_loc: tuple[int | str, ...] = (),
+    max_depth: int = 5,
+    _depth: int = 0,
+) -> list[PydanticErrorsVerbose]:
+    """Recursively extract verbose errors from a ValidationError, including those
+    nested inside ctx['error'] (produced when a custom validator raises a ValidationError).
+
+    Preserves the full field path by prepending parent loc segments as the recursion
+    unwinds, so a leaf error at ('ST01', 'value') inside an outer error at ('element_models',)
+    comes back with loc ('element_models', 'ST01', 'value').
+
+    max_depth caps how many levels of nested ValidationError are followed. Once the
+    limit is hit, the error at that level is treated as a leaf and processed as-is.
+    """
+    result: list[PydanticErrorsVerbose] = []
+    for raw_error in error.errors():
+        ctx = raw_error.get("ctx") or {}
+        ctx_error = ctx.get("error")
+        nested = (
+            _find_nested_validation_error(ctx_error)
+            if isinstance(ctx_error, BaseException)
+            else None
+        )
+        if nested is not None and _depth < max_depth:
+            result.extend(
+                unwrap_nested_validation_errors(
+                    nested,
+                    parent_loc=parent_loc + raw_error["loc"],
+                    max_depth=max_depth,
+                    _depth=_depth + 1,
+                )
+            )
+        else:
+            if parent_loc:
+                merged = cast(ErrorDetails, {**raw_error, "loc": parent_loc + raw_error["loc"]})
+                result.append(clean(PydanticErrorsVerbose(merged)))
+            else:
+                result.append(clean(PydanticErrorsVerbose(raw_error)))
+    return result
+
+
+def recursive_clean(error_details: Exception, max_depth: int = 5) -> list[PydanticErrorsVerbose]:
+    """Walk the exception __cause__ chain and verbosify the first ValidationError found.
+
+    Handles deeply nested structures like ValueError(ValueError(ValidationError(...))),
+    and also unwraps ValidationErrors that are nested inside ctx['error'] of sub-errors.
+    Returns an empty list if no ValidationError is present in the chain.
+    """
+    cause: BaseException | None = error_details
+    while cause is not None:
+        if isinstance(cause, pydantic.ValidationError):
+            return unwrap_nested_validation_errors(cause, max_depth=max_depth)
+        cause = cause.__cause__
+    return []
+
+
+def nested_error_to_nice(error_details: Exception) -> list[NicePydanticError]:
+    cleaned = recursive_clean(error_details)
+    if cleaned:
+        return [verbose_to_nice(error) for error in cleaned]
+    raise error_details
 
 
 def clean(error_details: PydanticErrorsVerbose) -> PydanticErrorsVerbose:
