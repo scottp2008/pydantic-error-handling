@@ -28,6 +28,7 @@ from pydantic_error_handling._core import (
     error_to_nice,
     error_to_string,
     nice_to_string,
+    nested_error_to_nice,
     parse_error_details,
     verbose_to_nice,
 )
@@ -46,6 +47,7 @@ __all__ = [
     # Main API - Function Helpers, stable
     "error_to_nice",
     "error_to_string",
+    "nested_error_to_nice",
     "nice_to_string",
     # Utility functions 
     "clean",

@@ -103,3 +103,53 @@ except ValidationError as e:
     for err in nice_errors:
         print(f"Field: {err.field_path}, Message: {err.message}")
 ```
+
+You can also use a helper function to handle deeply nested Pydantic Errors:
+```python
+from pydantic import BaseModel, field_validator, ValidationError
+from pydantic_error_handling import nested_error_to_nice
+
+class Address(BaseModel):
+    postcode: str = Field(pattern=r"^\d{5}$")
+    street: str
+
+class Order(BaseModel):
+    ref: str
+
+    @field_validator("ref", mode="before")
+    @classmethod
+    def validate_ref(cls, v):
+        try:
+            Address(**v)
+        except ValidationError as e:
+            raise ValueError(e) from e
+        return v
+
+try:
+    Order(ref={"postcode": "not-a-postcode", "street": ""})
+except Exception as e:
+    nice_errors = nested_error_to_nice(e)
+    for err in nice_errors:
+        print(f"{err.field}: {err.message}")
+    # ref.postcode: String should match pattern '^\d{5}$'. Received type: str, value: 'not-a-postcode'
+    # ref.street: Missing required field: street.
+```
+This will help turn your error from:
+
+```
+ValidationError: 1 validation error for Order
+ref
+  Value error, 2 validation errors for Address
+  postcode
+    String should match pattern '^\d{5}$' [type=string_pattern_mismatch, input_value='not-a-postcode', input_type=str]
+      For further information visit https://errors.pydantic.dev/2.12/v/string_pattern_mismatch
+  street
+    Field required [type=missing, input_value={'postcode': 'not-a-postcode'}, input_type=dict]
+      For further information visit https://errors.pydantic.dev/2.12/v/missing [type=value_error, ...]
+```
+
+To this:
+```
+ref.postcode: String should match pattern '^\d{5}$'. Received type: str, value: 'not-a-postcode'
+ref.street: Missing required field: street.
+```
